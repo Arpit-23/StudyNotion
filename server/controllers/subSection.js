@@ -1,7 +1,6 @@
 const SubSection = require("../models/SubSection");
 const Section = require("../models/Section");
 const { uploadImageToCloudinary } = require("../utils/imageUploader");
-const { data } = require("autoprefixer");
 
 exports.createSubSection = async (req, res) => {
   try {
