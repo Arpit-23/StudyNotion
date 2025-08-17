@@ -7,7 +7,7 @@ const profileRoutes = require("./routes/Profile");
 const courseRoutes = require("./routes/Course");
 
 const database = require("./config/database");
-const {cloudinaryConnect} = require("./config/cloudinary");
+const { cloudinaryConnect } = require("./config/cloudinary");
 
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
@@ -23,17 +23,17 @@ database.connect();
 app.use(cookieParser());
 app.use(express.json());
 app.use(
-    cors({
-        origin:"*",
-        credential:true,
-    })
-)
+  cors({
+    origin: "*",
+    credential: true,
+  })
+);
 app.use(
-    fileUpload({
-        useTempFiles:true,
-        tempFileDir:"/tmp",
-    })
-)
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: "/tmp",
+  })
+);
 
 //cloadinary connect
 cloudinaryConnect();
@@ -44,15 +44,14 @@ app.use("/api/v1/profile", profileRoutes);
 app.use("/api/v1/course", courseRoutes);
 app.use("/api/v1/payment", paymentRoutes);
 
-
-app.get("/",(req,res) =>{ 
-    return res.json({
-        success:true,
-        message:'Your server is up and running----'
-    });
+app.get("/", (req, res) => {
+  return res.json({
+    success: true,
+    message: "Your server is up and running----",
+  });
 });
 
-app.listen(PORT,()=>{
-    console.log(`App is running at ${PORT}`);
-    // console.log(app.patch)
+app.listen(PORT, () => {
+  console.log(`App is running at ${PORT}`);
+  // console.log(app.patch)
 });

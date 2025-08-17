@@ -48,11 +48,8 @@ exports.sentOTP = async (req, res) =>{
     
 
     const otpPayload = {email, otp};
-    console.log("first--",email," ",otp);
     //create an entry for otp
     const otpBody = await OTP.create(otpPayload);
-    console.log("first")
-    console.log(otpBody);
 
     //return resposse successfuly
     return res.status(200).json({
@@ -60,6 +57,7 @@ exports.sentOTP = async (req, res) =>{
         message:'OTP sent Successfully',
         otp,
     })
+    
 }
 
 catch(error){
@@ -85,7 +83,6 @@ exports.signUp = async (req, res)=>{
             accountType,
             otp,
         } = req.body;
-        console.log(firstName,lastName,email,password,confirmPassword,otp);
         //validate karlo
         if(!firstName||!lastName||!email||!password||!confirmPassword||!otp){
             return res.status(403).json({
@@ -113,7 +110,6 @@ exports.signUp = async (req, res)=>{
 
         //find most recent otp stored for the user
         const recentOtp = await OTP.find({email}).sort({createdAt:-1}).limit(1);
-        console.log(recentOtp);
         //otp not found
         if(recentOtp.length===0){
             return res.status(400).json({
@@ -181,7 +177,6 @@ exports.login = async (req, res) =>{
         }
         //user check exist or not
         const user = await User.findOne({email}).populate("additionalDetails");
-        console.log("printing inside controller - " ,user);
         if(!user){
             console.log("User is not registered, please sign up")
             return res.status(401).json({
@@ -190,9 +185,7 @@ exports.login = async (req, res) =>{
             })
         }
         //generate JWT, after password matching
-        console.log("bcrypt print",password, user.password)
         if(await bcrypt.compare(password, user.password)){
-            console.log("bcrypt print")
             const payload ={
                 email :user.email,
                 id: user._id,
@@ -240,11 +233,9 @@ exports.login = async (req, res) =>{
 //changePassword
 exports.changePassword = async (req, res) =>{
     try{
-        console.log("inside changepassword controller",req.user);
         //get data form req body
         const userDetails = await User.findById(req.user.id);
         //get oldPassword ,newPassword, confirmPassword
-        //console.log("inside changepassword controller2",userDetails)
         const {oldPassword ,newPassword} = req.body;
         //validation
         const isPasswordMatch =await bcrypt.compare(oldPassword,userDetails.password);
@@ -257,7 +248,6 @@ exports.changePassword = async (req, res) =>{
         //update pwd in DB
         const encryptedPassword = await bcrypt.hash(newPassword,10);
         const updateUserDetails = await User.findByIdAndUpdate(req.user.id,{password:encryptedPassword},{new:true});
-        // console.log("print updateUserDetails) ",updateUserDetails);
         //send mail -Password updated
         try{
             const emailResponse = await mailSender(
@@ -265,7 +255,6 @@ exports.changePassword = async (req, res) =>{
                 "Password for your account has been updated",
                 passwordUpdated(updateUserDetails.email,`Password updated successfully for ${updateUserDetails.firstName} ${updateUserDetails.lastName}`)
             );
-            console.log("Email sent successfully: ",emailResponse.response);
         }
         catch(error){
             console.log("Error occured while sending email: ",error);
