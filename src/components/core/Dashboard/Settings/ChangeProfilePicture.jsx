@@ -22,7 +22,6 @@ export default function ChangeProfilePicture() {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0]
-    // console.log(e.target.files)
     if (file) {
       setImageFile(file)
       previewFile(file)

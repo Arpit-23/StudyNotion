@@ -5,23 +5,26 @@ import { apiConnector } from "../services/apiconnector";
 import { categories } from "../services/apis";
 import { useSelector } from "react-redux";
 import Error from "./Error";
-import Course_Card from '../components/core/Catalog/Course_Card';
-import CourseSlider from '../components/core/Catalog/CourseSlider';
-import Footer from '../components/common/Footer'
+import Course_Card from "../components/core/Catalog/Course_Card";
+import CourseSlider from "../components/core/Catalog/CourseSlider";
+import Footer from "../components/common/Footer";
 
 const Catalog = () => {
   const { catalogName } = useParams();
   const [categoryId, setCategoryId] = useState("");
   const [catalogPageData, setCatalogPageData] = useState(null);
   const { loading } = useSelector((state) => state.profile);
-  const { active, setActive } = useState(1);
+  const [active, setActive] = useState(1);
 
   useEffect(() => {
     const getCategories = async () => {
       const res = await apiConnector("GET", categories.CATEGORIES_API);
-      console.log(res);
+      console.log(
+        res?.data?.data[1]?.name.trim().split(" ").join("-").toLowerCase()
+      );
       const category_id = res?.data?.data?.filter(
-        (ct) => ct.name.split(" ").join("-").toLowerCase() === catalogName
+        (ct) =>
+          ct.name.trim().split(" ").join("-").toLowerCase() === catalogName
       )[0]._id;
       setCategoryId(category_id);
     };
@@ -31,8 +34,9 @@ const Catalog = () => {
   useEffect(() => {
     const getCategoryDetails = async () => {
       try {
-        const res = await apiConnector("GET", getCatalogaPageData(categoryId));
-        console.log("Printing res = ", res);
+        console.log(categoryId);
+        const res = await getCatalogaPageData(categoryId);
+        console.log("Printing res = ", res.data);
         setCatalogPageData(res);
       } catch (error) {
         console.log(error);

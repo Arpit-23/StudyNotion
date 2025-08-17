@@ -6,8 +6,10 @@ import { setPaymentLoading } from "../../slices/courseSlice";
 import { resetCart } from "../../slices/cartSlice";
 
 
+
 const {COURSE_PAYMENT_API, COURSE_VERIFY_API, SEND_PAYMENT_SUCCESS_EMAIL_API} = studentEndpoints;
 
+//load dynamic script in your code
 function loadScript(src) {
     return new Promise((resolve) => {
         const script = document.createElement("script");
@@ -29,6 +31,7 @@ export async function buyCourse(token, courses, userDetails, navigate, dispatch)
     try{
         //load the script
         const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+        console.log("payment1")
 
         if(!res) {
             toast.error("RazorPay SDK failed to load");
@@ -48,10 +51,10 @@ export async function buyCourse(token, courses, userDetails, navigate, dispatch)
         console.log("PRINTING orderResponse", orderResponse);
         //options
         const options = {
-            key: process.env.RAZORPAY_KEY,
-            currency: orderResponse.data.message.currency,
-            amount: `${orderResponse.data.message.amount}`,
-            order_id:orderResponse.data.message.id,
+            key: import.meta.env.VITE_RAZORPAY_KEY,
+            currency: orderResponse.data.data.currency,
+            amount: `${orderResponse.data.data.amount}`,
+            order_id:orderResponse.data.data.id,
             name:"StudyNotion",
             description: "Thank You for Purchasing the Course",
             image:rzpLogo,
@@ -61,11 +64,12 @@ export async function buyCourse(token, courses, userDetails, navigate, dispatch)
             },
             handler: function(response) {
                 //send successful wala mail
-                sendPaymentSuccessEmail(response, orderResponse.data.message.amount,token );
+                sendPaymentSuccessEmail(response, orderResponse.data.data.amount,token );
                 //verifyPayment
                 verifyPayment({...response, courses}, token, navigate, dispatch);
             }
         }
+        console.log("response amoutn",orderResponse.data.data.amount)
         //miss hogya tha 
         const paymentObject = new window.Razorpay(options);
         paymentObject.open();
@@ -109,7 +113,7 @@ async function verifyPayment(bodyData, token, navigate, dispatch) {
         if(!response.data.success) {
             throw new Error(response.data.message);
         }
-        toast.success("payment Successful, ypou are addded to the course");
+        toast.success("payment Successful, you are addded to the course");
         navigate("/dashboard/enrolled-courses");
         dispatch(resetCart());
     }   
